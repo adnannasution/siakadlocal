@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIAKAD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#eef2ff',100:'#e0e7ff',500:'#6366f1',600:'#4f46e5',700:'#4338ca',900:'#1e1b4b' },
+            sidebar: '#1e1b4b',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .sidebar-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:bg-white/10 hover:text-white transition-all text-sm font-medium; }
+    .sidebar-link.active { @apply bg-white/15 text-white; }
+    #page-content { transition: opacity 0.15s ease; }
+    #page-content.loading { opacity: 0.4; pointer-events: none; }
+    .table-row-hover:hover { background: #f8fafc; }
+    .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+  </style>
+</head>
+<body class="bg-slate-100 font-sans antialiased">
+
+  <!-- LOGIN PAGE -->
+  <div id="login-page" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 to-primary-600 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-primary-600 rounded-xl mb-4">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-800">SIAKAD</h1>
+        <p class="text-slate-500 text-sm mt-1">Sistem Informasi Akademik</p>
+      </div>
+      <div id="login-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" id="login-email" required
+            class="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+            placeholder="email@kampus.ac.id" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <input type="password" id="login-password" required
+            class="w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+            placeholder="••••••••" />
+        </div>
+        <button type="submit" id="login-btn"
+          class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-lg transition-colors text-sm">
+          Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP (hidden until login) -->
+  <div id="app" class="hidden min-h-screen flex">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-64 min-h-screen flex-shrink-0 flex flex-col" style="background:#1e1b4b">
+      <!-- Logo -->
+      <div class="p-5 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="text-white font-bold text-sm">SIAKAD</div>
+            <div class="text-slate-400 text-xs">Akademik</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User info -->
+      <div class="px-4 py-3 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white text-xs font-bold" id="sidebar-avatar">A</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-white text-xs font-medium truncate" id="sidebar-name">-</div>
+            <div class="text-slate-400 text-xs" id="sidebar-role">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <a href="#/dashboard" class="sidebar-link" data-page="dashboard">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+        <div class="pt-3 pb-1 px-3">
+          <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Akademik</p>
+        </div>
+        <a href="#/mahasiswa" class="sidebar-link" data-page="mahasiswa">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Mahasiswa
+        </a>
+        <a href="#/dosen" class="sidebar-link" data-page="dosen">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Dosen
+        </a>
+        <a href="#/krs" class="sidebar-link" data-page="krs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          KRS
+        </a>
+        <a href="#/nilai" class="sidebar-link" data-page="nilai">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Penilaian
+        </a>
+        <a href="#/presensi" class="sidebar-link" data-page="presensi">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Presensi
+        </a>
+        <div class="pt-3 pb-1 px-3">
+          <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Keuangan</p>
+        </div>
+        <a href="#/keuangan" class="sidebar-link" data-page="keuangan">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Keuangan
+        </a>
+        <div class="pt-3 pb-1 px-3">
+          <p class="text-slate-500 text-xs uppercase tracking-wider font-semibold">Pengaturan</p>
+        </div>
+        <a href="#/pengaturan" class="sidebar-link" data-page="pengaturan">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Pengaturan
+        </a>
+      </nav>
+
+      <!-- Logout -->
+      <div class="p-3 border-t border-white/10">
+        <button onclick="App.logout()" class="sidebar-link w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Topbar -->
+      <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+        <div>
+          <h1 class="text-slate-800 font-semibold text-base" id="page-title">Dashboard</h1>
+          <p class="text-slate-500 text-xs" id="page-subtitle">Selamat datang</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-slate-400" id="topbar-datetime"></span>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="flex-1 p-6" id="page-content">
+        <div class="flex items-center justify-center h-64">
+          <div class="text-slate-400 text-sm">Memuat...</div>
+        </div>
+      </main>
+    </div>
+
+  </div>
+
+  <!-- MODAL CONTAINER -->
+  <div id="modal-overlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div id="modal-box" class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+  <!-- JS Core -->
+  <script src="js/core/api.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/router.js"></script>
+  <script src="js/core/ui.js"></script>
+  <!-- JS Modules -->
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/mahasiswa.js"></script>
+  <!-- App Init -->
+  <script src="js/app.js"></script>
+</body>
+</html>
