@@ -32,7 +32,8 @@ const App = (() => {
 
   const showApp = () => {
     document.getElementById('login-page').classList.add('hidden')
-    document.getElementById('app').classList.remove('hidden')
+    const appEl = document.getElementById('app')
+    appEl.classList.remove('hidden')
     updateSidebarUser()
     updateDatetime()
     setInterval(updateDatetime, 60000)
@@ -54,19 +55,39 @@ const App = (() => {
     window.location.hash = ''
   }
 
+  const toggleSidebar = () => {
+    const sidebar = document.getElementById('sidebar')
+    const overlay = document.getElementById('sidebar-overlay')
+    sidebar.classList.toggle('-translate-x-full')
+    overlay.classList.toggle('hidden')
+  }
+
   const init = () => {
     // Register routes
     Router.register('dashboard',  () => DashboardModule.render())
     Router.register('mahasiswa',  () => MahasiswaModule.render())
-    Router.register('dosen',      () => placeholderPage('Dosen', 'Manajemen data dosen'))
-    Router.register('krs',        () => placeholderPage('KRS', 'Kartu Rencana Studi'))
-    Router.register('nilai',      () => placeholderPage('Penilaian', 'Input dan kelola nilai'))
-    Router.register('presensi',   () => placeholderPage('Presensi', 'Kelola kehadiran'))
-    Router.register('keuangan',   () => placeholderPage('Keuangan', 'Tagihan dan pembayaran'))
-    Router.register('pengaturan', () => placeholderPage('Pengaturan', 'Konfigurasi sistem'))
+    Router.register('dosen',      () => DosenModule.render())
+    Router.register('krs',        () => KRSModule.render())
+    Router.register('nilai',      () => NilaiModule.render())
+    Router.register('presensi',   () => PresensiModule.render())
+    Router.register('keuangan',   () => KeuanganModule.render())
+    Router.register('pengaturan', () => PengaturanModule.render())
+
+    // Sidebar overlay click (mobile)
+    document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.add('-translate-x-full')
+      document.getElementById('sidebar-overlay').classList.add('hidden')
+    })
+
+    // Close sidebar when navigating on mobile
+    window.addEventListener('hashchange', () => {
+      if (window.innerWidth < 1024) {
+        document.getElementById('sidebar')?.classList.add('-translate-x-full')
+        document.getElementById('sidebar-overlay')?.classList.add('hidden')
+      }
+    })
 
     if (DEV_MODE) {
-      // Langsung masuk app tanpa login
       showApp()
       if (!window.location.hash || window.location.hash === '#') {
         window.location.hash = '#/dashboard'
@@ -78,7 +99,6 @@ const App = (() => {
         showLogin()
       }
 
-      // Login form
       document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault()
         const email = document.getElementById('login-email').value
@@ -104,20 +124,7 @@ const App = (() => {
     }
   }
 
-  const placeholderPage = (title, subtitle) => {
-    Router.setPageMeta(title, subtitle)
-    document.getElementById('page-content').innerHTML = `
-      <div class="flex flex-col items-center justify-center h-64 text-slate-400">
-        <svg class="w-16 h-16 mb-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-        </svg>
-        <p class="text-base font-medium text-slate-500">${title}</p>
-        <p class="text-sm mt-1">Modul ini sedang dalam pengembangan</p>
-        ${DEV_MODE ? '<p class="text-xs mt-3 text-primary-400 bg-primary-50 px-3 py-1 rounded-full">DEV MODE AKTIF</p>' : ''}
-      </div>`
-  }
-
-  return { init, logout, showApp, showLogin }
+  return { init, logout, showApp, showLogin, toggleSidebar }
 })()
 
 document.addEventListener('DOMContentLoaded', () => App.init())
