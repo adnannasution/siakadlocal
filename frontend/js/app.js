@@ -90,6 +90,7 @@ const App = (() => {
     Router.register('kepegawaian',    () => KepegawaianModule.render())
     Router.register('akreditasi',     () => AkreditasiModule.render())
     Router.register('alumni',         () => AlumniModule.render())
+    Router.register('laporan',        () => LaporanModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
