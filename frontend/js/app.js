@@ -73,6 +73,7 @@ const App = (() => {
     Router.register('presensi',   () => PresensiModule.render())
     Router.register('keuangan',   () => KeuanganModule.render())
     Router.register('ujian',      () => UjianModule.render())
+    Router.register('ta',         () => TAModule.render())
     Router.register('pengaturan', () => PengaturanModule.render())
     Router.register('master',     () => MasterModule.render())
     Router.register('kelas',      () => KelasModule.render())
