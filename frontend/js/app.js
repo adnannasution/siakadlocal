@@ -89,6 +89,7 @@ const App = (() => {
     Router.register('aset',           () => AsetModule.render())
     Router.register('kepegawaian',    () => KepegawaianModule.render())
     Router.register('akreditasi',     () => AkreditasiModule.render())
+    Router.register('alumni',         () => AlumniModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
