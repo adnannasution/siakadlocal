@@ -5,6 +5,14 @@ from datetime import datetime, timezone
 from app.utils.db import read_all, find_by_id, insert, update, soft_delete, search_rows, paginate
 from app.utils.dev import get_user_from_request, check_role
 
+def _calc_ip(rows: list) -> dict:
+    """Calculate IP/IPK from a list of nilai rows."""
+    total_sks   = sum(r.get("sks", 0) for r in rows)
+    sks_lulus   = sum(r.get("sks", 0) for r in rows if r.get("nilai_huruf") not in ("E",))
+    mutu        = sum(r.get("bobot", 0) * r.get("sks", 0) for r in rows)
+    ip          = round(mutu / total_sks, 2) if total_sks else 0.0
+    return {"ip": ip, "total_sks": total_sks, "sks_lulus": sks_lulus}
+
 router = APIRouter(prefix="/nilai", tags=["Nilai"])
 
 ADMIN = ["super_admin", "admin_akademik"]
@@ -99,6 +107,64 @@ def rekap_nilai(
         "draft": sum(1 for n in rows if not n.get("locked")),
         "distribusi_huruf": distribusi,
         "rata_rata": round(sum(n.get("nilai_akhir", 0) for n in rows) / len(rows), 2) if rows else 0,
+    })
+
+# ── GET KHS (per semester) ─────────────────────────────────────
+@router.get("/khs")
+def get_khs(
+    mahasiswa_id: str = Query(...),
+    semester_akademik: str = Query(...),
+    authorization: str = Header(default="dev"),
+):
+    get_user_from_request(authorization)
+    mhs = find_by_id("mahasiswa", mahasiswa_id)
+    if not mhs:
+        raise HTTPException(404, "Mahasiswa tidak ditemukan")
+
+    rows = [n for n in read_all("nilai")
+            if not n.get("deleted_at")
+            and n.get("mahasiswa_id") == mahasiswa_id
+            and n.get("semester_akademik") == semester_akademik]
+    rows.sort(key=lambda r: r.get("mata_kuliah_nama", ""))
+    ip_data = _calc_ip(rows)
+
+    return ok({
+        "mahasiswa": mhs,
+        "semester_akademik": semester_akademik,
+        "nilai": rows,
+        **ip_data,
+    })
+
+# ── GET Transkrip (semua semester) ─────────────────────────────
+@router.get("/transkrip")
+def get_transkrip(
+    mahasiswa_id: str = Query(...),
+    authorization: str = Header(default="dev"),
+):
+    get_user_from_request(authorization)
+    mhs = find_by_id("mahasiswa", mahasiswa_id)
+    if not mhs:
+        raise HTTPException(404, "Mahasiswa tidak ditemukan")
+
+    all_rows = [n for n in read_all("nilai")
+                if not n.get("deleted_at")
+                and n.get("mahasiswa_id") == mahasiswa_id]
+
+    semesters_list = sorted(set(n.get("semester_akademik", "") for n in all_rows))
+    semesters_data = []
+    for sem in semesters_list:
+        sem_rows = sorted([n for n in all_rows if n.get("semester_akademik") == sem],
+                          key=lambda r: r.get("mata_kuliah_nama", ""))
+        ip_data = _calc_ip(sem_rows)
+        semesters_data.append({"semester_akademik": sem, "nilai": sem_rows, **ip_data})
+
+    all_ip = _calc_ip(all_rows)
+    return ok({
+        "mahasiswa": mhs,
+        "semesters": semesters_data,
+        "ipk": all_ip["ip"],
+        "total_sks_tempuh": all_ip["total_sks"],
+        "total_sks_lulus": all_ip["sks_lulus"],
     })
 
 # ── GET detail ─────────────────────────────────────────────────
