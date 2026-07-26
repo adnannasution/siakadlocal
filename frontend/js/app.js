@@ -86,6 +86,11 @@ const App = (() => {
     Router.register('elearning',      () => ElearningModule.render())
     Router.register('penelitian',     () => PenelitianModule.render())
     Router.register('pkm',            () => PKMModule.render())
+    Router.register('aset',           () => AsetModule.render())
+    Router.register('kepegawaian',    () => KepegawaianModule.render())
+    Router.register('akreditasi',     () => AkreditasiModule.render())
+    Router.register('alumni',         () => AlumniModule.render())
+    Router.register('laporan',        () => LaporanModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
