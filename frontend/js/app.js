@@ -72,6 +72,7 @@ const App = (() => {
     Router.register('presensi',   () => PresensiModule.render())
     Router.register('keuangan',   () => KeuanganModule.render())
     Router.register('pengaturan', () => PengaturanModule.render())
+    Router.register('master',     () => MasterModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
