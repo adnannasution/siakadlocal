@@ -81,6 +81,7 @@ const App = (() => {
     Router.register('beasiswa',  () => BeasiswaModule.render())
     Router.register('ukm',       () => UKMModule.render())
     Router.register('semester-pendek', () => SPModule.render())
+    Router.register('pmb',            () => PMBModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
