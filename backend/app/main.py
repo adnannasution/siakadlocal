@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pathlib import Path
-from app.routers import auth, mahasiswa, dashboard, dosen, krs, nilai, keuangan, presensi, program_studi, mata_kuliah, ruang, kelas, ujian, ta, magang, beasiswa, ukm, semester_pendek, pmb, surat, elearning, penelitian
+from app.routers import auth, mahasiswa, dashboard, dosen, krs, nilai, keuangan, presensi, program_studi, mata_kuliah, ruang, kelas, ujian, ta, magang, beasiswa, ukm, semester_pendek, pmb, surat, elearning, penelitian, pkm
 
 # Path ke folder frontend (relatif dari backend/)
 FRONTEND_DIR = Path(__file__).parent.parent.parent / "frontend"
@@ -54,6 +54,7 @@ app.include_router(pmb.router, prefix="/api/v1")
 app.include_router(surat.router, prefix="/api/v1")
 app.include_router(elearning.router, prefix="/api/v1")
 app.include_router(penelitian.router, prefix="/api/v1")
+app.include_router(pkm.router, prefix="/api/v1")
 
 # Health check
 @app.get("/api/health")

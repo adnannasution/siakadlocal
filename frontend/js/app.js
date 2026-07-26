@@ -85,6 +85,7 @@ const App = (() => {
     Router.register('surat',          () => SuratModule.render())
     Router.register('elearning',      () => ElearningModule.render())
     Router.register('penelitian',     () => PenelitianModule.render())
+    Router.register('pkm',            () => PKMModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
