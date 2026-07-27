@@ -91,6 +91,9 @@ const App = (() => {
     Router.register('akreditasi',     () => AkreditasiModule.render())
     Router.register('alumni',         () => AlumniModule.render())
     Router.register('laporan',        () => LaporanModule.render())
+    Router.register('notifikasi',     () => NotifikasiModule.render())
+    Router.register('klinik',         () => KlinikModule.render())
+    Router.register('perpustakaan',   () => PerpustakaanModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
