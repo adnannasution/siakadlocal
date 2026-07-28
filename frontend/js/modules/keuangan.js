@@ -405,8 +405,8 @@ const KeuanganModule = (() => {
           </td>`
       })
     })
-    document.getElementById('tagihan-pagination').innerHTML =
-      UI.renderPagination(state.tagihanMeta, 'KeuanganModule.goTagihanPage')
+    const pgT = document.getElementById('tagihan-pagination')
+    if (pgT) pgT.innerHTML = UI.renderPagination(state.tagihanMeta, 'KeuanganModule.goTagihanPage')
   }
 
   // ── PEMBAYARAN TAB ─────────────────────────────────────────
@@ -479,8 +479,8 @@ const KeuanganModule = (() => {
             </button>` : '—'}
         </td>`)
     })
-    document.getElementById('pmb-pagination').innerHTML =
-      UI.renderPagination(state.pmbMeta, 'KeuanganModule.goPmbPage')
+    const pgP = document.getElementById('pmb-pagination')
+    if (pgP) pgP.innerHTML = UI.renderPagination(state.pmbMeta, 'KeuanganModule.goPmbPage')
   }
 
   // ── LAPORAN TAB ────────────────────────────────────────────

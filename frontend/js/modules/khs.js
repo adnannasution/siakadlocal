@@ -73,7 +73,7 @@ const KHSModule = (() => {
   // ── MAIN RENDER ────────────────────────────────────────────
   const render = async () => {
     Router.setPageMeta('KHS & Transkrip', 'Kartu Hasil Studi dan transkrip nilai mahasiswa')
-    await Promise.all([fetchMahasiswa(), fetchSemesters()])
+    try { await Promise.all([fetchMahasiswa(), fetchSemesters()]) } catch(e) { console.warn('KHS init failed:', e) }
 
     document.getElementById('page-content').innerHTML = `
       <!-- Tab -->
