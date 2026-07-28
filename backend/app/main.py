@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pathlib import Path
+import os
 from app.routers import auth, mahasiswa, dashboard, dosen, krs, nilai, keuangan, presensi, program_studi, mata_kuliah, ruang, kelas, ujian, ta, magang, beasiswa, ukm, semester_pendek, pmb, surat, elearning, penelitian, pkm, aset, kepegawaian, akreditasi, alumni, laporan, notifikasi, klinik, perpustakaan
 
 # Path ke folder frontend (relatif dari backend/)
@@ -14,6 +15,13 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
+
+@app.on_event("startup")
+def on_startup():
+    if os.getenv("DATABASE_URL"):
+        from app.utils.db import init_db, seed_from_json
+        init_db()
+        seed_from_json()
 
 app.add_middleware(
     CORSMiddleware,
