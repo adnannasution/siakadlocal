@@ -2,7 +2,7 @@
   {
     "id": "usr-001",
     "email": "admin@siakad.ac.id",
-    "password_hash": "$2b$10$SCKt.lkl1pbgZoP8NSwHm.GV6pcSB9lgzFU/IAz3vb.TfGXYWwLMe",
+    "password_hash": "$2b$10$0P5Eak4v.Djpa0mZhuRhbujHexWUKpFA1a2BuglF5dPjJkCBW3Sf6",
     "role": "super_admin",
     "nama": "Administrator",
     "is_active": true,
