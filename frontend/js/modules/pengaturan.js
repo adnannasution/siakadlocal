@@ -158,6 +158,40 @@ const PengaturanModule = (() => {
               </ol>
             </div>
           `) : ''}
+
+          <!-- Zona Bahaya -->
+          <div class="border border-red-200 rounded-xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-red-200 bg-red-50 flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              <h3 class="font-semibold text-red-700 text-sm">Zona Bahaya</h3>
+            </div>
+            <div class="p-5 space-y-4 bg-white">
+              <div class="flex items-start justify-between gap-4 p-4 border border-slate-200 rounded-lg">
+                <div>
+                  <p class="text-sm font-medium text-slate-800">Bersihkan Data Transaksi</p>
+                  <p class="text-xs text-slate-500 mt-1">Hapus semua mahasiswa, dosen, KRS, nilai, presensi, dan data operasional lainnya. Master data (program studi, mata kuliah, ruang, users) tetap aman.</p>
+                  <p class="text-xs text-red-500 mt-1 font-medium">Gunakan ini sebelum go-live dengan data nyata.</p>
+                </div>
+                <button onclick="PengaturanModule.openReset('clean')"
+                  class="shrink-0 px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 whitespace-nowrap">
+                  Bersihkan Data
+                </button>
+              </div>
+              <div class="flex items-start justify-between gap-4 p-4 border border-slate-200 rounded-lg">
+                <div>
+                  <p class="text-sm font-medium text-slate-800">Reset ke Data Demo</p>
+                  <p class="text-xs text-slate-500 mt-1">Hapus SEMUA data kemudian pulihkan kembali ke data contoh bawaan sistem. Berguna untuk mendemonstrasikan ulang sistem dari awal.</p>
+                  <p class="text-xs text-red-500 mt-1 font-medium">Semua data yang pernah diinput akan hilang permanen.</p>
+                </div>
+                <button onclick="PengaturanModule.openReset('demo')"
+                  class="shrink-0 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium whitespace-nowrap">
+                  Reset Demo
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>`
   }
@@ -385,6 +419,73 @@ const PengaturanModule = (() => {
     } catch(e) { UI.toast(e.message || 'Gagal reset password', 'error') }
   }
 
+  // ── RESET DATA ─────────────────────────────────────────────
+  let _resetMode = null
+  const openReset = (mode) => {
+    _resetMode = mode
+    const isDemo = mode === 'demo'
+    const title  = isDemo ? 'Reset ke Data Demo' : 'Bersihkan Data Transaksi'
+    const desc   = isDemo
+      ? 'Seluruh data akan <strong>dihapus permanen</strong> dan diganti dengan data demo bawaan sistem.'
+      : 'Semua data transaksi (mahasiswa, dosen, KRS, nilai, presensi, dll) akan <strong>dihapus permanen</strong>. Master data tetap aman.'
+    const btnCls = isDemo ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-red-500 hover:bg-red-600 text-white'
+    const btnLabel = isDemo ? 'Ya, Reset Sekarang' : 'Ya, Bersihkan Data'
+
+    UI.openModal(`
+      <div class="px-6 py-4 border-b border-red-200 bg-red-50 flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-red-800">${title}</h3>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <p class="text-sm text-slate-600">${desc}</p>
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+          <strong>Tindakan ini tidak dapat dibatalkan.</strong> Pastikan sudah ada backup sebelum melanjutkan.
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Ketik <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-red-600">HAPUS SEMUA DATA</code> untuk konfirmasi
+          </label>
+          <input id="pgtr-reset-confirm" type="text" placeholder="HAPUS SEMUA DATA"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-400 font-mono"
+            oninput="document.getElementById('pgtr-reset-btn').disabled = this.value !== 'HAPUS SEMUA DATA'"/>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button onclick="UI.closeModal()"
+            class="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+            Batal
+          </button>
+          <button id="pgtr-reset-btn" onclick="PengaturanModule.submitReset()" disabled
+            class="flex-1 px-4 py-2 ${btnCls} rounded-lg text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed">
+            ${btnLabel}
+          </button>
+        </div>
+      </div>
+    `)
+  }
+
+  const submitReset = async () => {
+    const confirm = document.getElementById('pgtr-reset-confirm')?.value
+    const btn = document.getElementById('pgtr-reset-btn')
+    if (confirm !== 'HAPUS SEMUA DATA') return
+    btn.disabled = true
+    btn.textContent = 'Memproses...'
+    try {
+      const res = await API.post('/admin/reset-data', {
+        mode: _resetMode,
+        confirm: 'HAPUS SEMUA DATA',
+      })
+      UI.closeModal()
+      UI.toast(res.message || 'Reset berhasil', 'success')
+      setTimeout(() => window.location.reload(), 1500)
+    } catch(e) {
+      UI.toast(e.message || 'Gagal melakukan reset', 'error')
+      btn.disabled = false
+      btn.textContent = _resetMode === 'demo' ? 'Ya, Reset Sekarang' : 'Ya, Bersihkan Data'
+    }
+  }
+
   // ── SEARCH / FILTER / PAGINATION ───────────────────────────
   let searchTimer = null
   const onSearch = (val) => {
@@ -399,6 +500,7 @@ const PengaturanModule = (() => {
     openEditUser, submitEditUser,
     toggleActive,
     openResetPassword, submitResetPassword,
+    openReset, submitReset,
     onSearch, onFilter, goPage,
   }
 })()
