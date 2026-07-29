@@ -221,6 +221,13 @@ const PengaturanModule = (() => {
           <option value="true"  ${state.is_active==='true' ?'selected':''}>Aktif</option>
           <option value="false" ${state.is_active==='false'?'selected':''}>Nonaktif</option>
         </select>
+        <button onclick="PengaturanModule.openCreateUser()"
+          class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Buat Akun
+        </button>
       </div>
       ${UI.card(`
         <div id="usr-table-wrap"></div>
@@ -310,6 +317,70 @@ const PengaturanModule = (() => {
   const renderUsersPagination = () => {
     const el = document.getElementById('usr-pagination')
     if (el) el.innerHTML = UI.renderPagination(state.meta, 'PengaturanModule.goPage')
+  }
+
+  // ── CREATE USER MODAL ──────────────────────────────────────
+  const openCreateUser = () => {
+    UI.openModal(`
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-slate-800">Buat Akun Pengguna</h3>
+        <button onclick="UI.closeModal()" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+          <input id="usr-new-nama" type="text" placeholder="Nama lengkap"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email <span class="text-red-500">*</span></label>
+          <input id="usr-new-email" type="email" placeholder="email@contoh.com"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password <span class="text-red-500">*</span></label>
+          <input id="usr-new-pw" type="password" placeholder="Minimal 6 karakter"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Role <span class="text-red-500">*</span></label>
+          <select id="usr-new-role"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+            <option value="">-- Pilih Role --</option>
+            ${ROLES.filter(r => r.value).map(r => `<option value="${r.value}">${r.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button onclick="UI.closeModal()"
+            class="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+            Batal
+          </button>
+          <button onclick="PengaturanModule.submitCreateUser()"
+            class="flex-1 btn-primary px-4 py-2 rounded-lg text-sm font-medium">
+            Buat Akun
+          </button>
+        </div>
+      </div>
+    `)
+  }
+
+  const submitCreateUser = async () => {
+    const nama  = document.getElementById('usr-new-nama').value.trim()
+    const email = document.getElementById('usr-new-email').value.trim()
+    const pw    = document.getElementById('usr-new-pw').value
+    const role  = document.getElementById('usr-new-role').value
+    if (!nama || !email || !pw || !role) { UI.toast('Semua field wajib diisi', 'error'); return }
+    if (pw.length < 6) { UI.toast('Password minimal 6 karakter', 'error'); return }
+    try {
+      await API.post('/users', { nama, email, password: pw, role })
+      UI.closeModal()
+      UI.toast('Akun berhasil dibuat', 'success')
+      fetchUsers()
+    } catch(e) { UI.toast(e.message || 'Gagal membuat akun', 'error') }
   }
 
   // ── EDIT USER MODAL ─────────────────────────────────────────
@@ -497,6 +568,7 @@ const PengaturanModule = (() => {
 
   return {
     render, switchTab,
+    openCreateUser, submitCreateUser,
     openEditUser, submitEditUser,
     toggleActive,
     openResetPassword, submitResetPassword,

@@ -2,7 +2,9 @@ from fastapi import APIRouter, Query, HTTPException
 from fastapi.params import Header
 from pydantic import BaseModel
 from typing import Optional
-from app.utils.db import read_all, find_by_id, update, paginate, search_rows
+import uuid
+from datetime import datetime, timezone
+from app.utils.db import read_all, find_by_id, insert, update, paginate, search_rows
 from app.utils.security import hash_password
 from app.utils.dev import get_user_from_request, check_role
 
@@ -15,6 +17,43 @@ def ok(data=None, message="Berhasil", meta=None):
 
 def _safe(u):
     return {k: v for k, v in u.items() if k != "password_hash"}
+
+# ── POST create ────────────────────────────────────────────
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    nama: str
+    role: str
+
+@router.post("")
+def create_user(body: UserCreate, authorization: str = Header(default="dev")):
+    user = get_user_from_request(authorization)
+    check_role(user, ["super_admin"])
+    email = body.email.strip().lower()
+    if not email or not body.password or not body.nama.strip():
+        raise HTTPException(400, "Email, password, dan nama wajib diisi")
+    if len(body.password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+    if body.role not in VALID_ROLES:
+        raise HTTPException(400, f"Role tidak valid: {body.role}")
+    existing = [u for u in read_all("users") if u.get("email", "").lower() == email and not u.get("deleted_at")]
+    if existing:
+        raise HTTPException(409, "Email sudah digunakan")
+    now = datetime.now(timezone.utc).isoformat()
+    new_user = {
+        "id": f"usr-{uuid.uuid4().hex[:8]}",
+        "email": email,
+        "nama": body.nama.strip(),
+        "role": body.role,
+        "password_hash": hash_password(body.password),
+        "is_active": True,
+        "entity_id": None,
+        "created_at": now,
+        "deleted_at": None,
+    }
+    inserted = insert("users", new_user)
+    return ok(_safe(inserted), "Akun berhasil dibuat")
+
 
 # ── GET list ───────────────────────────────────────────────
 @router.get("")
