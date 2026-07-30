@@ -34,6 +34,7 @@ const ROUTE_ROLES = {
   perpustakaan:        ['super_admin', 'admin_akademik', 'dosen', 'mahasiswa', 'staf'],
   obe:                 ['super_admin', 'admin_akademik', 'kaprodi', 'dosen'],
   master:              ['super_admin', 'admin_akademik', 'kaprodi'],
+  kalender:            ['super_admin', 'admin_akademik', 'kaprodi'],
   pengaturan:          null,
 }
 
@@ -174,6 +175,7 @@ const App = (() => {
     registerRoute('klinik',           () => KlinikModule.render())
     registerRoute('perpustakaan',     () => PerpustakaanModule.render())
     registerRoute('obe',              () => OBEModule.render())
+    registerRoute('kalender',         () => KalenderModule.render())
 
     // Sidebar overlay click (mobile)
     document.getElementById('sidebar-overlay')?.addEventListener('click', () => {

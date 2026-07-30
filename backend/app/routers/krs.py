@@ -45,6 +45,14 @@ def _cek_spp_lunas(mahasiswa_id: str, semester_akademik: str):
     if tagihan and not any(t.get("status") == "lunas" for t in tagihan):
         raise HTTPException(400, "SPP/UKT semester ini belum lunas — selesaikan pembayaran terlebih dahulu")
 
+def _cek_periode_krs(semester_akademik: str, bypass_roles: list, user_role: str):
+    """Raise 400 jika saat ini bukan periode KRS untuk semester ini."""
+    if user_role in bypass_roles:
+        return
+    from app.routers.kalender import is_periode_aktif
+    if not is_periode_aktif("krs", semester_akademik):
+        raise HTTPException(400, f"Bukan periode pengisian KRS untuk semester {semester_akademik} saat ini")
+
 def _cek_registrasi_semester(mahasiswa_id: str, semester_akademik: str):
     """Raise 400 jika fitur registrasi semester aktif dan mahasiswa belum registrasi."""
     all_reg = [r for r in read_all("registrasi_semester") if not r.get("deleted_at")]
@@ -221,6 +229,9 @@ def ajukan_krs(body: KRSAjukan, authorization: str = Header(default="dev")):
     kelas = find_by_id("kelas", body.kelas_id)
     if not kelas or kelas.get("deleted_at"):
         raise HTTPException(404, "Kelas tidak ditemukan")
+
+    # Cek periode KRS (admin/kaprodi bypass)
+    _cek_periode_krs(body.semester_akademik, ADMIN + ["kaprodi"], user.get("role", ""))
 
     # Cek registrasi semester (jika fitur diaktifkan)
     _cek_registrasi_semester(body.mahasiswa_id, body.semester_akademik)
