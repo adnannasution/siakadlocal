@@ -98,16 +98,19 @@ def list_krs(
     status: str = Query(""),
     semester_akademik: str = Query(""),
     mahasiswa_id: str = Query(""),
+    dosen_wali_id: str = Query(""),
     authorization: str = Header(default="dev"),
 ):
     user = get_user_from_request(authorization)
     rows = [k for k in read_all("krs") if not k.get("deleted_at")]
     rows = _scope_rows_krs(rows, user)
-    rows = search_rows(rows, ["mahasiswa_nama", "mahasiswa_nim", "mata_kuliah_nama", "mata_kuliah_kode"], search)
+    rows = search_rows(rows, ["mahasiswa_nama", "mahasiswa_nim", "mata_kuliah_nama", "mata_kuliah_kode", "dosen_wali_nama"], search)
     if status:
         rows = [r for r in rows if r.get("status") == status]
     if semester_akademik:
         rows = [r for r in rows if r.get("semester_akademik") == semester_akademik]
+    if dosen_wali_id:
+        rows = [r for r in rows if r.get("dosen_wali_id") == dosen_wali_id]
     if mahasiswa_id:
         # Mahasiswa tidak boleh meminta data mahasiswa lain lewat query param
         if user.get("role") == "mahasiswa":
